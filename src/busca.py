@@ -77,21 +77,25 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
 
-    print problem.getStartState()
-    print problem.isGoalState(problem.getStartState())
-    print problem.getSuccessors(problem.getStartState())
-    
     visited = []
-    currentState = Vertex(True, problem.getStartState()[0], problem.getSuccessors(problem.getStartState()))
-    visited.append(problem.getStartState())
+    path = []
 
-    for i in currentState.neighbours:
-        if i[0] not in visited:
-            print (i[0] + ' is not in visited array')
-    
+    DFS(problem, problem.getStartState(), '', visited, path)
+    return path
     util.raiseNotDefined()
+
+def DFS(problem, vertex, transition, visited, path):
+    visited.append(vertex)
+    if problem.isGoalState(vertex):
+        return True
+    for sucessor in problem.getSuccessors(vertex):
+        if sucessor[0] not in visited:
+            path.append(sucessor[1])
+            if DFS(problem, sucessor[0], sucessor[1], visited, path):
+                return True
+    path.remove(transition)
+    return False
 
 
 def breadthFirstSearch(problem):
