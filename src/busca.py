@@ -41,18 +41,6 @@ l = queuep.heap # Lista de elementos na fila
 e = queuep.pop()
 '''
 
-class Vertex:
-    def __init__(self, visited, name, neighbours):
-        self.visited = visited
-        self.name = name
-        self.neighbours = neighbours
-
-def generateDFSGraph(problem):
-    """
-    Initialize graph with all vertices as not visited (visited = False)
-    """
-    
-
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -78,22 +66,24 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     visited = []
-    path = []
-    dfsRecursion(problem, [problem.getStartState(), '', 0.0], visited, path)
-
-    return [row[1] for row in path]
+    path = Stack()
+    dfsRecursion(problem, problem.getStartState(), visited, path)
+    return path.list
     # util.raiseNotDefined()
 
-def dfsRecursion(problem, state, visited, path):
-    visited.append(state[0])
-    if problem.isGoalState(state[0]):
+def dfsRecursion(problem, currentState, visited, path):
+    visited.append(currentState)
+
+    if problem.isGoalState(currentState):
         return True
-    for sucessor in problem.getSuccessors(state[0]):
+
+    for sucessor in problem.getSuccessors(currentState):
         if sucessor[0] not in visited:
-            path.append(sucessor)
-            if dfsRecursion(problem, sucessor, visited, path):
+            path.push(sucessor[1])
+            if dfsRecursion(problem, sucessor[0], visited, path):
                 return True
-    path.remove(state)
+
+    path.pop()
     return False
 
 def breadthFirstSearch(problem):
