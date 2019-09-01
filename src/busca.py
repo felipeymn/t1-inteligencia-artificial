@@ -86,23 +86,20 @@ def dfsRecursion(problem, currentState, visited, path):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     parent = {}
-    visited = []
     queue = Queue()
     currentState = (problem.getStartState(), '', '')
     queue.push(currentState)
-    
-    while not len(queue.list) == 0:
+    visited = [currentState[0]]
+
+    while queue.list:
         currentState = queue.pop()
-        visited.append(currentState[0])
         if problem.isGoalState(currentState[0]):
-            break
+            return bfsFindPath(problem.getStartState(), currentState, parent)
         for sucessor in problem.getSuccessors(currentState[0]):
             if sucessor[0] not in visited:
                 parent[sucessor] = currentState
                 visited.append(sucessor[0])
                 queue.push(sucessor)
-
-    return bfsFindPath(problem.getStartState(), currentState, parent)
 
 def bfsFindPath(start, goal, parent):
     path = Queue()
@@ -115,7 +112,34 @@ def bfsFindPath(start, goal, parent):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    parent = {}
+    visited = []
+    priorityQueue = PriorityQueue()
+    currentState = (problem.getStartState(), '', '')
+    priorityQueue.push(currentState[0], 0)
+    visited.append(currentState[0])
+
+    while priorityQueue.heap:
+        currentState = priorityQueue.pop()
+        # if problem.isGoalState(currentState):
+            # print parent
+            # return visited
+            # return bfsFindPath(problem.getStartState(), currentState, parent)
+        for sucessor in problem.getSuccessors(currentState):
+            if sucessor[0] not in visited:
+                parent[sucessor] = currentState
+                visited.append(sucessor[0])
+                priorityQueue.push(sucessor[0], sucessor[2])
+            else:
+                queueStates = [row[2] for row in priorityQueue.heap]
+                if sucessor[0] in queueStates:
+                    print 'ui'
+                    parent[sucessor[0]] = currentState
+                    priorityQueue.update(sucessor[0], sucessor[2])
+
+
+
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
