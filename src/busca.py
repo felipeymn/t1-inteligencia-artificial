@@ -106,36 +106,29 @@ def uniformCostSearch(problem):
     stateAttributes = {}
     priorityQueue = PriorityQueue()
     currentState = (problem.getStartState())
-    stateAttributes[currentState] = (problem.getStartState(), '', '0.0')
+    stateAttributes[currentState] = (problem.getStartState(), '', 0.0)
     priorityQueue.push(currentState, 0)
-    visited = [currentState]
+    visited = []
 
     while priorityQueue.heap:
         currentState = priorityQueue.pop()
         if problem.isGoalState(currentState):
             return bfsFindPath(problem.getStartState(), stateAttributes.get(currentState), parent)
+        visited.append(currentState)
+
         for successor in problem.getSuccessors(currentState):
             queueStates = [row[2] for row in priorityQueue.heap]
             if(successor[0] not in visited) and (successor[0] not in queueStates):
                 parent[successor[0]] = stateAttributes.get(currentState)
-                stateAttributes[successor[0]] = (successor[0], successor[1], float(successor[2]) + float(stateAttributes.get(currentState)[2])) # Increment path weight
+                stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Increment path weight
                 priorityQueue.push(successor[0], stateAttributes.get(successor[0])[2])
-                visited.append(successor[0])
-            elif successor[0] in queueStates:
+            elif (successor[0] not in visited) and (successor[0] in queueStates):
                 for state in queueStates:
-                    if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2]):
+                    1if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]):
                         parent[state] = stateAttributes.get(currentState)
                         stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2])
                         priorityQueue.update(state, stateAttributes.get(successor[0])[2])
 
-def bfsFindPath(start, goal, parent):
-    path = Queue()
-    node = goal
-    while node != None:
-        if node[0] != start:
-            path.push(node[1])
-        node = parent.get(node[0])
-    return path.list
 
 def nullHeuristic(state, problem=None):
     """
@@ -146,9 +139,44 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    parent = {}
+    stateAttributes = {}
+    priorityQueue = PriorityQueue()
+    currentState = (problem.getStartState())
+    stateAttributes[currentState] = (problem.getStartState(), '', 0)
+    priorityQueue.push(currentState, 0)
+    visited = []
+    
+    while priorityQueue.heap:
+        currentState = priorityQueue.pop()
+        if problem.isGoalState(currentState):
+            return bfsFindPath(problem.getStartState(), stateAttributes.get(currentState), parent)
+        if currentState in visited:
+            priorityQueue.pop()
+        else:
+            visited.append(currentState)
+            for successor in problem.getSuccessors(currentState):
+                queueStates = [row[2] for row in priorityQueue.heap]
+                if(successor[0] not in visited) and (successor[0] not in queueStates):
+                    parent[successor[0]] = stateAttributes.get(currentState)
+                    stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Increment path weight
+                    priorityQueue.push(successor[0], stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem))
+                elif (successor[0] not in visited) and (successor[0] in queueStates):
+                    for state in queueStates:
+                        if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]):
+                            parent[state] = stateAttributes.get(currentState)
+                            stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2] )
+                            priorityQueue.push(state, stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem))
 
+    util.raiseNotDefined()
+def bfsFindPath(start, goal, parent):
+    path = Queue()
+    node = goal
+    while node != None:
+        if node[0] != start:
+            path.push(node[1])
+        node = parent.get(node[0])
+    return path.list
 
 # Abbreviations
 bfs = breadthFirstSearch
