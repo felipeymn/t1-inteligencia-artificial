@@ -71,10 +71,15 @@ def depthFirstSearch(problem):
     return path.list
 
 def dfsRecursion(problem, currentState, visited, path):
+    """
+    Funcao recursiva que realiza a busca em profundidade
+
+    O caminho ate o objetivo eh armazenado na stack path, que eh passada por parametro na funcao
+    """
     visited.append(currentState)
-    if problem.isGoalState(currentState):
+    if problem.isGoalState(currentState): # Se o objetivo foi encontrado, finaliza o processo de recursao
         return True
-    for successor in problem.getSuccessors(currentState):
+    for successor in problem.getSuccessors(currentState): # Percorre recursivamente os sucessores do nodo corrente
         if successor[0] not in visited:
             path.push(successor[1])
             if dfsRecursion(problem, successor[0], visited, path):
@@ -92,10 +97,10 @@ def breadthFirstSearch(problem):
 
     while queue.list:
         currentState = queue.pop()
-        if problem.isGoalState(currentState[0]):
+        if problem.isGoalState(currentState[0]): # Se o objetivo foi encontrado, chama a funcao que retorna o caminho
             return bfsFindPath(problem.getStartState(), currentState, parent)
-        for sucessor in problem.getSuccessors(currentState[0]):
-            if sucessor[0] not in visited:
+        for sucessor in problem.getSuccessors(currentState[0]): 
+            if sucessor[0] not in visited: # Se o sucessor ainda nao foi visitado, eh incluido na fila para ser consumido futuramente
                 parent[sucessor[0]] = currentState
                 visited.append(sucessor[0])
                 queue.push(sucessor)
@@ -112,7 +117,7 @@ def uniformCostSearch(problem):
 
     while priorityQueue.heap:
         currentState = priorityQueue.pop()
-        if problem.isGoalState(currentState):
+        if problem.isGoalState(currentState): # Se o objetivo foi encontrado, chama a funcao que retorna o caminho
             return bfsFindPath(problem.getStartState(), stateAttributes.get(currentState), parent)
         visited.append(currentState)
 
@@ -120,15 +125,14 @@ def uniformCostSearch(problem):
             queueStates = [row[2] for row in priorityQueue.heap]
             if(successor[0] not in visited) and (successor[0] not in queueStates):
                 parent[successor[0]] = stateAttributes.get(currentState)
-                stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Increment path weight
+                stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Incrementa o peso do caminho ate o nodo corrente
                 priorityQueue.push(successor[0], stateAttributes.get(successor[0])[2])
             elif (successor[0] not in visited) and (successor[0] in queueStates):
                 for state in queueStates:
-                    1if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]):
-                        parent[state] = stateAttributes.get(currentState)
+                    if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]): # Se um estado ja conhecido estiver na fila de prioridades
+                        parent[state] = stateAttributes.get(currentState)                                                                 # com um peso menor, atualiza o peso  
                         stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2])
-                        priorityQueue.update(state, stateAttributes.get(successor[0])[2])
-
+                        priorityQueue.push(state, stateAttributes.get(successor[0])[2])
 
 def nullHeuristic(state, problem=None):
     """
@@ -142,14 +146,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     parent = {}
     stateAttributes = {}
     priorityQueue = PriorityQueue()
-    currentState = (problem.getStartState())
+    currentState = (problem.getStartState())# Se o objetivo foi encontrado, chama a funcao que retorna o caminho
     stateAttributes[currentState] = (problem.getStartState(), '', 0)
     priorityQueue.push(currentState, 0)
     visited = []
     
     while priorityQueue.heap:
         currentState = priorityQueue.pop()
-        if problem.isGoalState(currentState):
+        if problem.isGoalState(currentState): # Se o objetivo foi encontrado, chama a funcao que retorna o caminho
             return bfsFindPath(problem.getStartState(), stateAttributes.get(currentState), parent)
         if currentState in visited:
             priorityQueue.pop()
@@ -159,17 +163,22 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 queueStates = [row[2] for row in priorityQueue.heap]
                 if(successor[0] not in visited) and (successor[0] not in queueStates):
                     parent[successor[0]] = stateAttributes.get(currentState)
-                    stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Increment path weight
-                    priorityQueue.push(successor[0], stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem))
+                    stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2]) # Incrementa o peso do caminho ate o nodo corrente
+                    priorityQueue.push(successor[0], stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem)) # Adiciona o nodo na fila de prioridade com o peso + heuristica
                 elif (successor[0] not in visited) and (successor[0] in queueStates):
                     for state in queueStates:
-                        if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]):
+                        if (state == successor[0]) and (stateAttributes.get(state)[2] > successor[2] + stateAttributes.get(currentState)[2]): # Se um estado ja conhecido estiver na fila de prioridades
                             parent[state] = stateAttributes.get(currentState)
-                            stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2] )
-                            priorityQueue.push(state, stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem))
+                            stateAttributes[successor[0]] = (successor[0], successor[1], successor[2] + stateAttributes.get(currentState)[2])
+                            priorityQueue.push(state, stateAttributes.get(successor[0])[2] + heuristic(successor[0], problem)) # Adiciona o nodo na fila de prioridade com o peso + heuristica
 
-    util.raiseNotDefined()
 def bfsFindPath(start, goal, parent):
+    """
+    Funcao utilitaria para os algoritmos baseados na busca em largura (bfs)
+    Chamada quando o nodo objetivo eh encontrado, a funcao realiza o
+    backtracking atraves do pai ate o nodo inicial
+    Assim, o caminho do inicio ate o objetivo pode ser descoberto
+    """
     path = Queue()
     node = goal
     while node != None:
@@ -183,5 +192,3 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
-
-  
